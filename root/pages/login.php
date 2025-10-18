@@ -16,19 +16,14 @@
             $login = $_POST['login'];
             $password = md5($_POST['password']);
             
-            if ($login === 'Admin' && $_POST['password'] === '303') {
-                $_SESSION['admin'] = true;
-                header("Location: ../index.php");
-                exit;
-            }
-            
-            $result = mysqli_query($conn, "SELECT id, password FROM users WHERE login = '$login'");
+            $result = mysqli_query($conn, 
+                "SELECT id, password, is_admin FROM users WHERE login = '$login'");
             
             if (mysqli_num_rows($result) == 1) {
                 $user = mysqli_fetch_assoc($result);
                 if ($user['password'] === $password) {
                     $_SESSION['user_id'] = $user['id'];
-                    $_SESSION['admin'] = false;
+                    $_SESSION['admin'] = $user['is_admin']; 
                     header("Location: ../index.php");
                     exit;
                 } else {

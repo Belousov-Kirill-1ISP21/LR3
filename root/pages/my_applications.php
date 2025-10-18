@@ -17,7 +17,6 @@ if (!isset($_SESSION['user_id']) || $_SESSION['admin']) {
         <h2>Мои заявки</h2>
         
         <?php
-        // Добавление отзыва
         if ($_POST && isset($_POST['rating'])) {
             $user_id = $_SESSION['user_id'];
             $rating = $_POST['rating'];
@@ -35,33 +34,40 @@ if (!isset($_SESSION['user_id']) || $_SESSION['admin']) {
         <h3>Мои заявки на курсы</h3>
         <?php
         $user_id = $_SESSION['user_id'];
-        $result = mysqli_query($conn, "SELECT * FROM applications WHERE user_id = $user_id ORDER BY created_at DESC");
+        $result = mysqli_query($conn, "
+            SELECT a.*, c.name as course_name, c.price, t.full_name as teacher_name
+            FROM applications a 
+            JOIN courses c ON a.course_id = c.id 
+            LEFT JOIN teachers t ON c.teacher_id = t.id
+            WHERE a.user_id = $user_id 
+            ORDER BY a.created_at DESC
+        ");
         
         if (mysqli_num_rows($result) > 0): ?>
             <table>
                 <tr>
                     <th>Курс</th>
+                    <th>Преподаватель</th>
+                    <th>Цена</th>
                     <th>Дата начала</th>
-                    <th>Способ оплаты</th>
                     <th>Статус</th>
-                    <th>Дата подачи</th>
                 </tr>
                 <?php while($row = mysqli_fetch_assoc($result)): ?>
                 <tr>
                     <td><?php echo $row['course_name']; ?></td>
+                    <td><?php echo $row['teacher_name']; ?></td>
+                    <td><?php echo $row['price']; ?> руб.</td>
                     <td><?php echo $row['start_date']; ?></td>
-                    <td><?php echo $row['payment_method'] == 'cash' ? 'Наличные' : 'Перевод'; ?></td>
                     <td>
                         <?php 
                         $statuses = [
                             'new' => 'Новая', 
                             'in_progress' => 'Идет обучение', 
-                            'completed' => 'Обучение завершено'
+                            'completed' => 'Завершено'
                         ];
                         echo $statuses[$row['status']];
                         ?>
                     </td>
-                    <td><?php echo $row['created_at']; ?></td>
                 </tr>
                 <?php endwhile; ?>
             </table>
@@ -69,7 +75,6 @@ if (!isset($_SESSION['user_id']) || $_SESSION['admin']) {
             <p>У вас нет заявок</p>
         <?php endif; ?>
         
-        <!-- Форма отзыва - ВСЕГДА ВИДНА -->
         <h3>Оставить отзыв о наших услугах</h3>
         <form method="POST">
             <select name="rating" required>

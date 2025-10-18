@@ -17,7 +17,7 @@ if (!isset($_SESSION['admin']) || !$_SESSION['admin']) {
         <h2>Панель администратора</h2>
         
         <?php
-        if ($_POST) {
+        if ($_POST && isset($_POST['application_id'])) {
             $application_id = $_POST['application_id'];
             $status = $_POST['status'];
             
@@ -25,6 +25,8 @@ if (!isset($_SESSION['admin']) || !$_SESSION['admin']) {
             
             if (mysqli_query($conn, $sql)) {
                 echo "<p class='success'>Статус обновлен!</p>";
+            } else {
+                echo "<p class='error'>Ошибка: " . mysqli_error($conn) . "</p>";
             }
         }
         ?>
@@ -32,9 +34,11 @@ if (!isset($_SESSION['admin']) || !$_SESSION['admin']) {
         <h3>Все заявки</h3>
         <?php
         $result = mysqli_query($conn, "
-            SELECT a.*, u.full_name, u.login 
+            SELECT a.*, u.full_name, u.login, c.name as course_name, t.full_name as teacher_name
             FROM applications a 
             JOIN users u ON a.user_id = u.id 
+            JOIN courses c ON a.course_id = c.id
+            LEFT JOIN teachers t ON c.teacher_id = t.id
             ORDER BY a.created_at DESC
         ");
         
@@ -43,6 +47,7 @@ if (!isset($_SESSION['admin']) || !$_SESSION['admin']) {
                 <tr>
                     <th>Пользователь</th>
                     <th>Курс</th>
+                    <th>Преподаватель</th>
                     <th>Дата начала</th>
                     <th>Способ оплаты</th>
                     <th>Статус</th>
@@ -53,12 +58,22 @@ if (!isset($_SESSION['admin']) || !$_SESSION['admin']) {
                 <tr>
                     <td><?php echo $row['full_name'] . ' (' . $row['login'] . ')'; ?></td>
                     <td><?php echo $row['course_name']; ?></td>
+                    <td><?php echo $row['teacher_name'] ?: 'Не назначен'; ?></td>
                     <td><?php echo $row['start_date']; ?></td>
                     <td><?php echo $row['payment_method'] == 'cash' ? 'Наличные' : 'Перевод'; ?></td>
-                    <td><?php echo $row['status']; ?></td>
+                    <td>
+                        <?php 
+                        $statuses = [
+                            'new' => 'Новая', 
+                            'in_progress' => 'Идет обучение', 
+                            'completed' => 'Завершено'
+                        ];
+                        echo $statuses[$row['status']];
+                        ?>
+                    </td>
                     <td><?php echo $row['created_at']; ?></td>
                     <td>
-                        <form method="POST">
+                        <form method="POST" style="display:inline;">
                             <input type="hidden" name="application_id" value="<?php echo $row['id']; ?>">
                             <select name="status">
                                 <option value="new" <?php echo $row['status'] == 'new' ? 'selected' : ''; ?>>Новая</option>
