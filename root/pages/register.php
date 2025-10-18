@@ -23,8 +23,8 @@
             if (mysqli_num_rows($check) > 0) {
                 echo "<p class='error'>Логин уже занят</p>";
             } else {
-                $sql = "INSERT INTO users (login, password, full_name, phone, email) 
-                        VALUES ('$login', '$password', '$full_name', '$phone', '$email')";
+                $sql = "INSERT INTO users (login, password, full_name, phone, email, status_id) 
+                        VALUES ('$login', '$password', '$full_name', '$phone', '$email', 1)";
                 
                 if (mysqli_query($conn, $sql)) {
                     echo "<p class='success'>Регистрация успешна!</p>";

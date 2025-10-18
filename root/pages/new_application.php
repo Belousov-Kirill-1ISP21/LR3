@@ -53,7 +53,7 @@ while($course = mysqli_fetch_assoc($courses_result)) {
         ?>
         
         <form method="POST">
-            <select name="course_id" required onchange="showCourseInfo(this.value)">
+            <select name="course_id" required>
                 <option value="">Выберите курс</option>
                 <?php
                 mysqli_data_seek($courses_result, 0);
@@ -63,14 +63,6 @@ while($course = mysqli_fetch_assoc($courses_result)) {
                 ?>
             </select><br><br>
             
-            <div id="courseInfo">
-                <h4>Информация о курсе:</h4>
-                <p><strong>Описание:</strong> <span id="courseDescription"></span></p>
-                <p><strong>Преподаватель:</strong> <span id="courseTeacher"></span></p>
-                <p><strong>Продолжительность:</strong> <span id="courseDuration"></span> часов</p>
-                <p><strong>Стоимость:</strong> <span id="coursePrice"></span> руб.</p>
-            </div>
-            
             <input type="date" name="start_date" required><br><br>
             <select name="payment_method" required>
                 <option value="cash">Наличные</option>
@@ -78,31 +70,6 @@ while($course = mysqli_fetch_assoc($courses_result)) {
             </select><br><br>
             <button type="submit">Отправить заявку</button>
         </form>
-
-        <script>
-        const coursesInfo = <?php echo json_encode($courses_info); ?>;
-        
-        function showCourseInfo(courseId) {
-            const courseInfo = document.getElementById('courseInfo');
-            const description = document.getElementById('courseDescription');
-            const teacher = document.getElementById('courseTeacher');
-            const duration = document.getElementById('courseDuration');
-            const price = document.getElementById('coursePrice');
-            
-            if (!courseId || !coursesInfo[courseId]) {
-                courseInfo.style.display = 'none';
-                return;
-            }
-            
-            const course = coursesInfo[courseId];
-            description.textContent = course.description || 'Описание отсутствует';
-            teacher.textContent = course.teacher || 'Не назначен';
-            duration.textContent = course.duration || '0';
-            price.textContent = course.price || '0';
-            
-            courseInfo.style.display = 'block';
-        }
-        </script>
         
         <p><a href="my_applications.php">Мои заявки</a></p>
         <p><a href="../index.php">На главную</a></p>

@@ -17,13 +17,13 @@
             $password = md5($_POST['password']);
             
             $result = mysqli_query($conn, 
-                "SELECT id, password, is_admin FROM users WHERE login = '$login'");
+                "SELECT id, password, status_id FROM users WHERE login = '$login'");
             
             if (mysqli_num_rows($result) == 1) {
                 $user = mysqli_fetch_assoc($result);
                 if ($user['password'] === $password) {
                     $_SESSION['user_id'] = $user['id'];
-                    $_SESSION['admin'] = $user['is_admin']; 
+                    $_SESSION['admin'] = ($user['status_id'] == 0); 
                     header("Location: ../index.php");
                     exit;
                 } else {
