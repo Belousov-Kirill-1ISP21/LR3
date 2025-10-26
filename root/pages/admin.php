@@ -19,9 +19,9 @@ if (!isset($_SESSION['admin']) || !$_SESSION['admin']) {
         <?php
         if ($_POST && isset($_POST['application_id'])) {
             $application_id = $_POST['application_id'];
-            $status = $_POST['status'];
+            $status_id = $_POST['status_id'];
             
-            $sql = "UPDATE applications SET status = '$status' WHERE id = $application_id";
+            $sql = "UPDATE applications SET status_id = '$status_id' WHERE id = $application_id";
             
             if (mysqli_query($conn, $sql)) {
                 echo "<p class='success'>Статус обновлен!</p>";
@@ -34,12 +34,12 @@ if (!isset($_SESSION['admin']) || !$_SESSION['admin']) {
         <h3>Все заявки</h3>
         <?php
         $result = mysqli_query($conn, "
-            SELECT a.*, u.full_name, u.login, c.name as course_name, t.full_name as teacher_name
+            SELECT a.*, u.full_name, u.login, c.name as course_name, c.teacher_name, s.name as status_name
             FROM applications a 
             JOIN users u ON a.user_id = u.id 
             JOIN courses c ON a.course_id = c.id
-            LEFT JOIN teachers t ON c.teacher_id = t.id
-            ORDER BY a.created_at DESC
+            JOIN application_statuses s ON a.status_id = s.id
+            ORDER BY a.id DESC
         ");
         
         if (mysqli_num_rows($result) > 0): ?>
@@ -49,36 +49,23 @@ if (!isset($_SESSION['admin']) || !$_SESSION['admin']) {
                     <th>Курс</th>
                     <th>Преподаватель</th>
                     <th>Дата начала</th>
-                    <th>Способ оплаты</th>
                     <th>Статус</th>
-                    <th>Дата подачи</th>
                     <th>Изменить статус</th>
                 </tr>
                 <?php while($row = mysqli_fetch_assoc($result)): ?>
                 <tr>
                     <td><?php echo $row['full_name'] . ' (' . $row['login'] . ')'; ?></td>
                     <td><?php echo $row['course_name']; ?></td>
-                    <td><?php echo $row['teacher_name'] ?: 'Не назначен'; ?></td>
+                    <td><?php echo $row['teacher_name']; ?></td>
                     <td><?php echo $row['start_date']; ?></td>
-                    <td><?php echo $row['payment_method'] == 'cash' ? 'Наличные' : 'Перевод'; ?></td>
+                    <td><?php echo $row['status_name']; ?></td>
                     <td>
-                        <?php 
-                        $statuses = [
-                            'new' => 'Новая', 
-                            'in_progress' => 'Идет обучение', 
-                            'completed' => 'Завершено'
-                        ];
-                        echo $statuses[$row['status']];
-                        ?>
-                    </td>
-                    <td><?php echo $row['created_at']; ?></td>
-                    <td>
-                        <form method="POST" style="display:inline;">
+                        <form method="POST" class="inline-form">
                             <input type="hidden" name="application_id" value="<?php echo $row['id']; ?>">
-                            <select name="status">
-                                <option value="new" <?php echo $row['status'] == 'new' ? 'selected' : ''; ?>>Новая</option>
-                                <option value="in_progress" <?php echo $row['status'] == 'in_progress' ? 'selected' : ''; ?>>Идет обучение</option>
-                                <option value="completed" <?php echo $row['status'] == 'completed' ? 'selected' : ''; ?>>Завершено</option>
+                            <select name="status_id">
+                                <option value="1" <?php echo $row['status_id'] == 1 ? 'selected' : ''; ?>>Новая</option>
+                                <option value="2" <?php echo $row['status_id'] == 2 ? 'selected' : ''; ?>>Обучается</option>
+                                <option value="3" <?php echo $row['status_id'] == 3 ? 'selected' : ''; ?>>Завершено</option>
                             </select>
                             <button type="submit">Обновить</button>
                         </form>

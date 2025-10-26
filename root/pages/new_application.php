@@ -3,24 +3,6 @@ if (!isset($_SESSION['user_id']) || $_SESSION['admin']) {
     header("Location: ../index.php");
     exit;
 }
-
-
-$courses_result = mysqli_query($conn, "
-    SELECT c.*, t.full_name as teacher_name 
-    FROM courses c 
-    LEFT JOIN teachers t ON c.teacher_id = t.id
-");
-
-
-$courses_info = [];
-while($course = mysqli_fetch_assoc($courses_result)) {
-    $courses_info[$course['id']] = [
-        'description' => $course['description'],
-        'teacher' => $course['teacher_name'],
-        'duration' => $course['duration_hours'],
-        'price' => $course['price']
-    ];
-}
 ?>
 <!DOCTYPE html>
 <html>
@@ -40,9 +22,10 @@ while($course = mysqli_fetch_assoc($courses_result)) {
             $course_id = $_POST['course_id'];
             $start_date = $_POST['start_date'];
             $payment_method = $_POST['payment_method'];
+            $status_id = 1;
             
-            $sql = "INSERT INTO applications (user_id, course_id, start_date, payment_method) 
-                    VALUES ('$user_id', '$course_id', '$start_date', '$payment_method')";
+            $sql = "INSERT INTO applications (user_id, course_id, start_date, payment_method, status_id) 
+                    VALUES ('$user_id', '$course_id', '$start_date', '$payment_method', '$status_id')";
             
             if (mysqli_query($conn, $sql)) {
                 echo "<p class='success'>Заявка отправлена!</p>";
@@ -50,14 +33,15 @@ while($course = mysqli_fetch_assoc($courses_result)) {
                 echo "<p class='error'>Ошибка: " . mysqli_error($conn) . "</p>";
             }
         }
+        
+        $courses = mysqli_query($conn, "SELECT * FROM courses");
         ?>
         
         <form method="POST">
             <select name="course_id" required>
                 <option value="">Выберите курс</option>
                 <?php
-                mysqli_data_seek($courses_result, 0);
-                while($course = mysqli_fetch_assoc($courses_result)) {
+                while($course = mysqli_fetch_assoc($courses)) {
                     echo "<option value='{$course['id']}'>{$course['name']} - {$course['price']} руб.</option>";
                 }
                 ?>
@@ -72,6 +56,7 @@ while($course = mysqli_fetch_assoc($courses_result)) {
         </form>
         
         <p><a href="my_applications.php">Мои заявки</a></p>
+        <p><a href="courses.php">Все курсы</a></p>
         <p><a href="../index.php">На главную</a></p>
     </div>
 </body>

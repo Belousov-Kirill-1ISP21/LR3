@@ -18,18 +18,24 @@
             $full_name = $_POST['full_name'];
             $phone = $_POST['phone'];
             $email = $_POST['email'];
+            $role_id = 1;
             
-            $check = mysqli_query($conn, "SELECT id FROM users WHERE login = '$login'");
-            if (mysqli_num_rows($check) > 0) {
-                echo "<p class='error'>Логин уже занят</p>";
+            $sql = "INSERT INTO users (login, password, full_name, phone, email, role_id) 
+                    VALUES ('$login', '$password', '$full_name', '$phone', '$email', $role_id)";
+            
+            if (mysqli_query($conn, $sql)) {
+                echo "<p class='success'>Регистрация успешна!</p>";
             } else {
-                $sql = "INSERT INTO users (login, password, full_name, phone, email, status_id) 
-                        VALUES ('$login', '$password', '$full_name', '$phone', '$email', 1)";
+                $error_message = mysqli_error($conn);
                 
-                if (mysqli_query($conn, $sql)) {
-                    echo "<p class='success'>Регистрация успешна!</p>";
+                if (strpos($error_message, 'login') !== false) {
+                    echo "<p class='error'>Логин уже занят</p>";
+                } elseif (strpos($error_message, 'email') !== false) {
+                    echo "<p class='error'>Email уже занят</p>";
+                } elseif (strpos($error_message, 'phone') !== false) {
+                    echo "<p class='error'>Телефон уже занят</p>";
                 } else {
-                    echo "<p class='error'>Ошибка: " . mysqli_error($conn) . "</p>";
+                    echo "<p class='error'>Ошибка регистрации: " . $error_message . "</p>";
                 }
             }
         }

