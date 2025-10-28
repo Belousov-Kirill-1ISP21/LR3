@@ -14,6 +14,15 @@
         <?php
         $courses = mysqli_query($conn, "SELECT * FROM courses");
         while($course = mysqli_fetch_assoc($courses)): 
+            $course_id = $course['id'];
+            $avg_rating_query = mysqli_query($conn, "
+                SELECT AVG(rating) as avg_rating, COUNT(*) as review_count 
+                FROM reviews 
+                WHERE course_id = $course_id
+            ");
+            $rating_data = mysqli_fetch_assoc($avg_rating_query);
+            $avg_rating = $rating_data['avg_rating'] ? round($rating_data['avg_rating'], 1) : 0;
+            $review_count = $rating_data['review_count'];
         ?>
         <div class="course-block">
             <h3><?php echo $course['name']; ?></h3>
@@ -22,10 +31,19 @@
             <p><strong>Продолжительность:</strong> <?php echo $course['duration_hours']; ?> часов</p>
             <p><strong>Цена:</strong> <?php echo $course['price']; ?> руб.</p>
             
+            <div class="course-rating">
+                <strong>Рейтинг курса:</strong> 
+                <?php if ($avg_rating > 0): ?>
+                    <span class="rating-value"><?php echo $avg_rating; ?>/5</span>
+                    (<?php echo $review_count; ?> отзывов)
+                <?php else: ?>
+                    <span>ещё нет оценок</span>
+                <?php endif; ?>
+            </div>
+            
             <div class="course-reviews">
-                <h4>Отзывы о курсе:</h4>
+                <h4>Отзывы:</h4>
                 <?php
-                $course_id = $course['id'];
                 $reviews = mysqli_query($conn, "
                     SELECT r.*, u.full_name 
                     FROM reviews r 

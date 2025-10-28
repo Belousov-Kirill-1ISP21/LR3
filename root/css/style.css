@@ -62,5 +62,21 @@ button {
 .course-block {
     border: 1px solid #ccc;
     padding: 15px;
+    margin: 20px 0;
+}
+
+.course-reviews {
+    margin-top: 15px;
+}
+
+.course-rating {
     margin: 10px 0;
+    padding: 8px;
+    background: #f8f9fa;
+    border-radius: 4px;
+}
+
+.rating-value {
+    font-weight: bold;
+    color: #333;
 }
